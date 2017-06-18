@@ -17,8 +17,8 @@ app.get('/errors/params', (req, res, next) => {
   next({
     code: 'ERROR_WITH_PARAMS',
     params: {
-      httpStatusCode: 402,
-      errorMessage: 'This error message is from the parameters'
+      statusCode: 402,
+      message: 'This error message is from the parameters'
     }
   });
 });
@@ -33,20 +33,20 @@ app.get('/errors/unexpected', (req, res, next) => {
 
 let errorMiddleware = errorizer({
   ERROR_AS_STRING: {
-    httpStatusCode: 400,
-    errorMessage: 'This error was used as a string'
+    statusCode: 400,
+    message: 'This error was used as a string'
   },
   ERROR_AS_OBJECT: {
-    httpStatusCode: 401,
-    errorMessage: 'This error was used as an object'
+    statusCode: 401,
+    message: 'This error was used as an object'
   },
   ERROR_WITH_PARAMS: {
-    httpStatusCode: parameters => parameters.httpStatusCode,
-    errorMessage: parameters => parameters.errorMessage
+    statusCode: parameters => parameters.statusCode,
+    message: parameters => parameters.message
   },
   ERROR_WITH_ERROR: {
-    httpStatusCode: parameters => 'UGLY BUG!',
-    errorMessage: 'This error will cause an error'
+    statusCode: parameters => 'UGLY BUG!',
+    message: 'This error will cause an error'
   }
 });
 

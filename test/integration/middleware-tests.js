@@ -30,7 +30,7 @@ describe('errorizer middleware', function () {
       .expect('Content-Type', /json/)
       .expect({
         errorCode: 'ERROR_AS_STRING',
-        errorMessage: 'This error was used as a string'
+        message: 'This error was used as a string'
       });
   });
 
@@ -41,7 +41,7 @@ describe('errorizer middleware', function () {
       .expect('Content-Type', /json/)
       .expect({
         errorCode: 'ERROR_AS_OBJECT',
-        errorMessage: 'This error was used as an object'
+        message: 'This error was used as an object'
       });
   });
 
@@ -52,29 +52,29 @@ describe('errorizer middleware', function () {
       .expect('Content-Type', /json/)
       .expect({
         errorCode: 'ERROR_WITH_PARAMS',
-        errorMessage: 'This error message is from the parameters'
+        message: 'This error message is from the parameters'
       });
   });
 
   it('should return the default error if a custom error function has issues', function () {
     return request(app)
       .get('/errors/error')
-      .expect(DEFAULT_ERROR.httpStatusCode)
+      .expect(DEFAULT_ERROR.statusCode)
       .expect('Content-Type', /json/)
       .expect({
         errorCode: DEFAULT_ERROR_CODE,
-        errorMessage: DEFAULT_ERROR.errorMessage
+        message: DEFAULT_ERROR.message
       });
   });
 
   it('should return the default error if an unexpected error occurs', function () {
     return request(app)
       .get('/errors/unexpected')
-      .expect(DEFAULT_ERROR.httpStatusCode)
+      .expect(DEFAULT_ERROR.statusCode)
       .expect('Content-Type', /json/)
       .expect({
         errorCode: DEFAULT_ERROR_CODE,
-        errorMessage: DEFAULT_ERROR.errorMessage
+        message: DEFAULT_ERROR.message
       });
   });
 

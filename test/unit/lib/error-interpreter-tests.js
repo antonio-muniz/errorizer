@@ -10,7 +10,7 @@ describe('ErrorInterpreter', function () {
   describe('constructor', function () {
 
     it('should create an error interpreter for an error', function () {
-      let error = { httpStatusCode: 400, errorMessage: 'The request is invalid' };
+      let error = { statusCode: 400, message: 'The request is invalid' };
       let parameters = { prop: 'value' };
 
       let interpreter = new ErrorInterpreter(error, parameters);
@@ -19,115 +19,115 @@ describe('ErrorInterpreter', function () {
       interpreter.should.be.instanceof(ErrorInterpreter);
       interpreter.should.have.property('error').which.is.eql(error);
       interpreter.should.have.property('parameters').which.is.eql(parameters);
-      interpreter.should.have.property('getErrorMessage').which.is.a.Function();
-      interpreter.should.have.property('getHttpStatusCode').which.is.a.Function();
+      interpreter.should.have.property('getmessage').which.is.a.Function();
+      interpreter.should.have.property('getstatusCode').which.is.a.Function();
     });
 
   });
 
-  describe('getErrorMessage', function () {
+  describe('getmessage', function () {
 
     it('should return string error message', function () {
-      let error = { errorMessage: 'The request is invalid' };
+      let error = { message: 'The request is invalid' };
 
       let interpreter = new ErrorInterpreter(error);
-      let errorMessage = interpreter.getErrorMessage();
+      let message = interpreter.getmessage();
 
-      errorMessage.should.eql(error.errorMessage);
+      message.should.eql(error.message);
     });
 
     it('should return error message from function', function () {
       let messageToReturn = 'The request is invalid';
-      let error = { errorMessage: () => messageToReturn };
+      let error = { message: () => messageToReturn };
       let parameters = { details: ', because it is not valid' };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let errorMessage = interpreter.getErrorMessage();
+      let message = interpreter.getmessage();
 
-      errorMessage.should.eql(messageToReturn);
+      message.should.eql(messageToReturn);
     });
 
     it('should pass params to error message function', function () {
       let baseMessage = 'The request is invalid';
       let error = {
-        errorMessage: (parameters) => {
+        message: (parameters) => {
           return baseMessage + parameters.details;
         }
       };
       let parameters = { details: ', because it is not valid' };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let errorMessage = interpreter.getErrorMessage();
+      let message = interpreter.getmessage();
 
-      errorMessage.should.eql(baseMessage + parameters.details);
+      message.should.eql(baseMessage + parameters.details);
     });
 
     it('should return nothing if no error message was given', function () {
       let error = {};
 
       let interpreter = new ErrorInterpreter(error);
-      let errorMessage = interpreter.getErrorMessage();
+      let message = interpreter.getmessage();
 
-      should.not.exist(errorMessage);
+      should.not.exist(message);
     });
 
     it('should throw an error if the error message is not a string', function () {
-      let error = { errorMessage: {} };
+      let error = { message: {} };
 
       let interpreter = new ErrorInterpreter(error);
-      (() => interpreter.getErrorMessage())
+      (() => interpreter.getmessage())
         .should.throw(`Invalid error message "${{}}". It must be a string`);
     });
 
   });
 
-  describe('getHttpStatusCode', function () {
+  describe('getstatusCode', function () {
 
     it('should return valid number HTTP status code', function () {
-      let error = { httpStatusCode: 404 };
+      let error = { statusCode: 404 };
 
       let interpreter = new ErrorInterpreter(error);
-      let httpStatusCode = interpreter.getHttpStatusCode();
+      let statusCode = interpreter.getstatusCode();
 
-      httpStatusCode.should.eql(404);
+      statusCode.should.eql(404);
     });
 
     it('should return HTTP status code from function', function () {
-      let error = { httpStatusCode: () => 404 };
+      let error = { statusCode: () => 404 };
 
       let interpreter = new ErrorInterpreter(error);
-      let httpStatusCode = interpreter.getHttpStatusCode();
+      let statusCode = interpreter.getstatusCode();
 
-      httpStatusCode.should.eql(404);
+      statusCode.should.eql(404);
     });
 
     it('should pass params to HTTP status code function', function () {
       let error = {
-        httpStatusCode: (parameters) => parameters.actualHttpStatusCode
+        statusCode: (parameters) => parameters.actualstatusCode
       };
-      let parameters = { actualHttpStatusCode: 502 };
+      let parameters = { actualstatusCode: 502 };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let httpStatusCode = interpreter.getHttpStatusCode();
+      let statusCode = interpreter.getstatusCode();
 
-      httpStatusCode.should.eql(502);
+      statusCode.should.eql(502);
     });
 
     it('should return 500 if no HTTP status code was given', function () {
       let error = {};
 
       let interpreter = new ErrorInterpreter(error);
-      let httpStatusCode = interpreter.getHttpStatusCode();
+      let statusCode = interpreter.getstatusCode();
 
-      httpStatusCode.should.eql(500);
+      statusCode.should.eql(500);
     });
 
     it('should throw an error if the HTTP status code is not valid', function () {
-      let error = { httpStatusCode: 999 };
+      let error = { statusCode: 999 };
 
       let interpreter = new ErrorInterpreter(error);
-      (() => interpreter.getHttpStatusCode())
-        .should.throw(`Invalid HTTP status code ${error.httpStatusCode}`);
+      (() => interpreter.getstatusCode())
+        .should.throw(`Invalid HTTP status code ${error.statusCode}`);
     });
 
   });

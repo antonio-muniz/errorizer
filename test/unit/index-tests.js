@@ -1,30 +1,13 @@
 'use strict';
-/* global describe, it, before, after */
+/* global describe, it */
 
-const fs = require('fs');
 const express = require('express');
 const request = require('supertest');
-const path = require('path');
 const should = require('should');
 
 const index = require('../../index');
 
-const ERRORS_FILE = require('../../lib/constants').ERRORS_FILE;
-
 describe('index', function () {
-
-  before(function () {
-    let errorsFilePath = path.join(process.cwd(), ERRORS_FILE);
-    fs.writeFileSync(errorsFilePath, `
-      'use strict';
-      
-      module.exports = {
-        STRANGE_REQUEST: {
-          httpStatusCode: 400,
-          errorMessage: "The request is strange"
-        }
-      };`);
-  });
 
   it('should return an Express error middleware function', function () {
     let errorMiddleware = index();
@@ -37,8 +20,8 @@ describe('index', function () {
   it('should accept error definitions as a parameter', function () {
     let errors = {
       STRANGE_REQUEST: {
-        httpStatusCode: 400,
-        errorMessage: 'The request is strange'
+        statusCode: 400,
+        message: 'The request is strange'
       }
     };
 
@@ -52,30 +35,11 @@ describe('index', function () {
 
     return request(app)
       .get('/')
-      .expect(errors.STRANGE_REQUEST.httpStatusCode)
+      .expect(errors.STRANGE_REQUEST.statusCode)
       .expect('Content-Type', /json/)
       .expect({
         errorCode: 'STRANGE_REQUEST',
-        errorMessage: errors.STRANGE_REQUEST.errorMessage
-      });
-  });
-
-  it('should fallback to the error definitions file', function () {
-    let errorMiddleware = index();
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next('STRANGE_REQUEST');
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(400)
-      .expect('Content-Type', /json/)
-      .expect({
-        errorCode: 'STRANGE_REQUEST',
-        errorMessage: 'The request is strange'
+        message: errors.STRANGE_REQUEST.message
       });
   });
 
@@ -84,11 +48,6 @@ describe('index', function () {
 
     (() => index(errors))
       .should.throw('Error definition must be an object');
-  });
-
-  after(function () {
-    let errorsFilePath = path.join(process.cwd(), ERRORS_FILE);
-    fs.unlinkSync(errorsFilePath);
   });
 
 });
