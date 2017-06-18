@@ -1,11 +1,14 @@
 'use strict';
 /* global describe, it, before, after */
 
-const { spawn } = require('child_process');
+const spawn = require('child_process').spawn;
 const request = require('supertest');
 
 const app = 'http://127.0.0.1:32202';
-const { DEFAULT_ERROR_CODE, DEFAULT_ERROR } = require('../../lib/constants');
+
+const constants = require('../../lib/constants');
+const DEFAULT_ERROR_CODE = constants.DEFAULT_ERROR_CODE;
+const DEFAULT_ERROR = constants.DEFAULT_ERROR;
 
 describe('errorizer middleware', function () {
 

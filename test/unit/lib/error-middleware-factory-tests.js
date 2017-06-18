@@ -5,8 +5,11 @@ const express = require('express');
 const request = require('supertest');
 const should = require('should');
 
-const { DEFAULT_ERROR_CODE, DEFAULT_ERROR } = require('../../../lib/constants');
 const ErrorMiddlewareFactory = require('../../../lib/error-middleware-factory');
+
+const constants = require('../../../lib/constants');
+const DEFAULT_ERROR_CODE = constants.DEFAULT_ERROR_CODE;
+const DEFAULT_ERROR = constants.DEFAULT_ERROR;
 
 describe('ErrorMiddlewareFactory', function () {
 

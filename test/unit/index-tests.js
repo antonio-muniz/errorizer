@@ -7,8 +7,9 @@ const request = require('supertest');
 const path = require('path');
 const should = require('should');
 
-const { ERRORS_FILE } = require('../../lib/constants');
 const index = require('../../index');
+
+const ERRORS_FILE = require('../../lib/constants').ERRORS_FILE;
 
 describe('index', function () {
 

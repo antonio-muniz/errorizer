@@ -5,7 +5,7 @@ const util = require('util');
 
 const ErrorMiddlewareFactory = require('./lib/error-middleware-factory');
 
-const { ERRORS_FILE } = require('./lib/constants');
+const ERRORS_FILE = require('./lib/constants').ERRORS_FILE;
 
 module.exports = (errors) => {
   if (util.isNullOrUndefined(errors)) {
