@@ -3,5 +3,3 @@ node_js:
   - "4.8"
   - "6.11"
   - "8.1"
-script:
-  - npm run test-ci
