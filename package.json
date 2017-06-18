@@ -1,6 +1,6 @@
 {
   "name": "errorizer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A Express middleware for organizing and returning custom errors in JSON APIs",
   "main": "index.js",
   "scripts": {
