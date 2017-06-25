@@ -14,13 +14,8 @@ describe('errorizer middleware', function () {
 
   let testAppProcess;
 
-  before(function (done) {
-    console.log('Starting test app in background...');
+  before(function () {
     testAppProcess = spawn('node', ['./test-app/app']);
-    setTimeout(() => {
-      console.log('Test app started!');
-      done();
-    }, 3000);
   });
 
   it('should return errors handled as strings', function () {
