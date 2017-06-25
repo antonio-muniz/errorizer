@@ -16,7 +16,7 @@ describe('errorizer middleware', function () {
 
   before(function (done) {
     console.log('Starting sample app in background...');
-    sampleAppProcess = spawn('node', ['./sample/app']);
+    sampleAppProcess = spawn('npm run start-sample', [], { shell: true });
     setTimeout(() => {
       console.log('Sample app started!');
       done();

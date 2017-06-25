@@ -19,19 +19,19 @@ describe('ErrorInterpreter', function () {
       interpreter.should.be.instanceof(ErrorInterpreter);
       interpreter.should.have.property('error').which.is.eql(error);
       interpreter.should.have.property('parameters').which.is.eql(parameters);
-      interpreter.should.have.property('getmessage').which.is.a.Function();
-      interpreter.should.have.property('getstatusCode').which.is.a.Function();
+      interpreter.should.have.property('getMessage').which.is.a.Function();
+      interpreter.should.have.property('getStatusCode').which.is.a.Function();
     });
 
   });
 
-  describe('getmessage', function () {
+  describe('getMessage', function () {
 
     it('should return string error message', function () {
       let error = { message: 'The request is invalid' };
 
       let interpreter = new ErrorInterpreter(error);
-      let message = interpreter.getmessage();
+      let message = interpreter.getMessage();
 
       message.should.eql(error.message);
     });
@@ -42,7 +42,7 @@ describe('ErrorInterpreter', function () {
       let parameters = { details: ', because it is not valid' };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let message = interpreter.getmessage();
+      let message = interpreter.getMessage();
 
       message.should.eql(messageToReturn);
     });
@@ -57,7 +57,7 @@ describe('ErrorInterpreter', function () {
       let parameters = { details: ', because it is not valid' };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let message = interpreter.getmessage();
+      let message = interpreter.getMessage();
 
       message.should.eql(baseMessage + parameters.details);
     });
@@ -66,7 +66,7 @@ describe('ErrorInterpreter', function () {
       let error = {};
 
       let interpreter = new ErrorInterpreter(error);
-      let message = interpreter.getmessage();
+      let message = interpreter.getMessage();
 
       should.not.exist(message);
     });
@@ -75,19 +75,19 @@ describe('ErrorInterpreter', function () {
       let error = { message: {} };
 
       let interpreter = new ErrorInterpreter(error);
-      (() => interpreter.getmessage())
+      (() => interpreter.getMessage())
         .should.throw(`Invalid error message "${{}}". It must be a string`);
     });
 
   });
 
-  describe('getstatusCode', function () {
+  describe('getStatusCode', function () {
 
     it('should return valid number HTTP status code', function () {
       let error = { statusCode: 404 };
 
       let interpreter = new ErrorInterpreter(error);
-      let statusCode = interpreter.getstatusCode();
+      let statusCode = interpreter.getStatusCode();
 
       statusCode.should.eql(404);
     });
@@ -96,7 +96,7 @@ describe('ErrorInterpreter', function () {
       let error = { statusCode: () => 404 };
 
       let interpreter = new ErrorInterpreter(error);
-      let statusCode = interpreter.getstatusCode();
+      let statusCode = interpreter.getStatusCode();
 
       statusCode.should.eql(404);
     });
@@ -108,7 +108,7 @@ describe('ErrorInterpreter', function () {
       let parameters = { actualstatusCode: 502 };
 
       let interpreter = new ErrorInterpreter(error, parameters);
-      let statusCode = interpreter.getstatusCode();
+      let statusCode = interpreter.getStatusCode();
 
       statusCode.should.eql(502);
     });
@@ -117,7 +117,7 @@ describe('ErrorInterpreter', function () {
       let error = {};
 
       let interpreter = new ErrorInterpreter(error);
-      let statusCode = interpreter.getstatusCode();
+      let statusCode = interpreter.getStatusCode();
 
       statusCode.should.eql(500);
     });
@@ -126,7 +126,7 @@ describe('ErrorInterpreter', function () {
       let error = { statusCode: 999 };
 
       let interpreter = new ErrorInterpreter(error);
-      (() => interpreter.getstatusCode())
+      (() => interpreter.getStatusCode())
         .should.throw(`Invalid HTTP status code ${error.statusCode}`);
     });
 
