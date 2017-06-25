@@ -6,7 +6,6 @@
   "scripts": {
     "coverage": "istanbul cover --include-all-sources true -x sample/** node_modules/mocha/bin/_mocha -- --timeout 5000 --recursive ./test",
     "lint": "eslint .",
-    "start-sample": "node ./sample/app",
     "test": "npm run lint && npm run coverage"
   },
   "repository": {

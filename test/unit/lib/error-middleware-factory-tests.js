@@ -24,7 +24,7 @@ describe('ErrorMiddlewareFactory', function () {
   it('should handle known errors as object', function () {
     let errors = {
       STRANGE_REQUEST: {
-        statusCode: 400,
+        status: 400,
         message: 'The request is strange'
       }
     };
@@ -39,10 +39,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(errors.STRANGE_REQUEST.statusCode)
+      .expect(errors.STRANGE_REQUEST.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'STRANGE_REQUEST',
+        code: 'STRANGE_REQUEST',
         message: errors.STRANGE_REQUEST.message
       });
   });
@@ -50,7 +50,7 @@ describe('ErrorMiddlewareFactory', function () {
   it('should handle known errors as string', function () {
     let errors = {
       STRANGE_REQUEST: {
-        statusCode: 400,
+        status: 400,
         message: 'The request is strange'
       }
     };
@@ -65,10 +65,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(errors.STRANGE_REQUEST.statusCode)
+      .expect(errors.STRANGE_REQUEST.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'STRANGE_REQUEST',
+        code: 'STRANGE_REQUEST',
         message: errors.STRANGE_REQUEST.message
       });
   });
@@ -86,10 +86,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });
@@ -107,10 +107,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });
@@ -128,10 +128,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });
@@ -166,7 +166,7 @@ describe('ErrorMiddlewareFactory', function () {
   it('should send the default error if an error is thrown in the error interpreter', function () {
     let errors = {
       TROUBLESOME_ERROR: {
-        statusCode: 'this shall make the interpreter explode'
+        status: 'this shall make the interpreter explode'
       }
     };
 
@@ -180,10 +180,10 @@ describe('ErrorMiddlewareFactory', function () {
 
     return request(app)
       .get('/')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });

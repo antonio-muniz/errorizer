@@ -20,7 +20,7 @@ describe('index', function () {
   it('should accept error definitions as a parameter', function () {
     let errors = {
       STRANGE_REQUEST: {
-        statusCode: 400,
+        status: 400,
         message: 'The request is strange'
       }
     };
@@ -35,10 +35,10 @@ describe('index', function () {
 
     return request(app)
       .get('/')
-      .expect(errors.STRANGE_REQUEST.statusCode)
+      .expect(errors.STRANGE_REQUEST.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'STRANGE_REQUEST',
+        code: 'STRANGE_REQUEST',
         message: errors.STRANGE_REQUEST.message
       });
   });

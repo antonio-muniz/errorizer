@@ -12,13 +12,13 @@ const DEFAULT_ERROR = constants.DEFAULT_ERROR;
 
 describe('errorizer middleware', function () {
 
-  let sampleAppProcess;
+  let testAppProcess;
 
   before(function (done) {
-    console.log('Starting sample app in background...');
-    sampleAppProcess = spawn('npm run start-sample', [], { shell: true });
+    console.log('Starting test app in background...');
+    testAppProcess = spawn('node', ['./test-app/app']);
     setTimeout(() => {
-      console.log('Sample app started!');
+      console.log('Test app started!');
       done();
     }, 3000);
   });
@@ -29,7 +29,7 @@ describe('errorizer middleware', function () {
       .expect(400)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'ERROR_AS_STRING',
+        code: 'ERROR_AS_STRING',
         message: 'This error was used as a string'
       });
   });
@@ -40,7 +40,7 @@ describe('errorizer middleware', function () {
       .expect(401)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'ERROR_AS_OBJECT',
+        code: 'ERROR_AS_OBJECT',
         message: 'This error was used as an object'
       });
   });
@@ -51,7 +51,7 @@ describe('errorizer middleware', function () {
       .expect(402)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: 'ERROR_WITH_PARAMS',
+        code: 'ERROR_WITH_PARAMS',
         message: 'This error message is from the parameters'
       });
   });
@@ -59,10 +59,10 @@ describe('errorizer middleware', function () {
   it('should return the default error if a custom error function has issues', function () {
     return request(app)
       .get('/errors/error')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });
@@ -70,16 +70,16 @@ describe('errorizer middleware', function () {
   it('should return the default error if an unexpected error occurs', function () {
     return request(app)
       .get('/errors/unexpected')
-      .expect(DEFAULT_ERROR.statusCode)
+      .expect(DEFAULT_ERROR.status)
       .expect('Content-Type', /json/)
       .expect({
-        errorCode: DEFAULT_ERROR_CODE,
+        code: DEFAULT_ERROR_CODE,
         message: DEFAULT_ERROR.message
       });
   });
 
   after(function () {
-    sampleAppProcess.kill();
+    testAppProcess.kill('SIGKILL');
   });
 
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-const errorizer = require('../');
+const errorizer = require('../../../');
 const express = require('express');
 
 let app = express();
@@ -17,7 +17,7 @@ app.get('/errors/params', (req, res, next) => {
   next({
     code: 'ERROR_WITH_PARAMS',
     params: {
-      statusCode: 402,
+      status: 402,
       message: 'This error message is from the parameters'
     }
   });
@@ -33,19 +33,19 @@ app.get('/errors/unexpected', (req, res, next) => {
 
 let errorMiddleware = errorizer({
   ERROR_AS_STRING: {
-    statusCode: 400,
+    status: 400,
     message: 'This error was used as a string'
   },
   ERROR_AS_OBJECT: {
-    statusCode: 401,
+    status: 401,
     message: 'This error was used as an object'
   },
   ERROR_WITH_PARAMS: {
-    statusCode: parameters => parameters.statusCode,
+    status: parameters => parameters.status,
     message: parameters => parameters.message
   },
   ERROR_WITH_ERROR: {
-    statusCode: parameters => 'UGLY BUG!',
+    status: parameters => 'UGLY BUG!',
     message: 'This error will cause an error'
   }
 });
