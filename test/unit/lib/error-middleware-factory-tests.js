@@ -5,187 +5,103 @@ const express = require('express');
 const request = require('supertest');
 const should = require('should');
 
+const constants = require('../../../lib/constants');
 const ErrorMiddlewareFactory = require('../../../lib/error-middleware-factory');
 
-const constants = require('../../../lib/constants');
-const DEFAULT_ERROR_CODE = constants.DEFAULT_ERROR_CODE;
-const DEFAULT_ERROR = constants.DEFAULT_ERROR;
+const errors = {
+  INVALID_REQUEST: {
+    status: 400,
+    message: 'The request is invalid',
+    detail: {
+      description: 'This error occurs when the request is invalid',
+      docs: 'https://docs.myapp.com/errors/INVALID_REQUEST'
+    }
+  },
+  BUGGED_ERROR: {}
+};
 
 describe('ErrorMiddlewareFactory', function () {
 
-  it('should be an Express error middleware function', function () {
-    let errors = {};
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
+  describe('create', function () {
 
-    errorMiddleware.should.be.of.type('function');
-    errorMiddleware.should.have.length(4);
+    it('should return an Express error middleware for the error definitions', function () {
+      let errorMiddleware = ErrorMiddlewareFactory.create(errors);
+
+      should.exist(errorMiddleware);
+      errorMiddleware.should.be.a.Function();
+      errorMiddleware.should.have.length(4);
+    });
+
   });
 
-  it('should handle known errors as object', function () {
-    let errors = {
-      STRANGE_REQUEST: {
-        status: 400,
-        message: 'The request is strange'
-      }
-    };
+  describe('middleware', function () {
 
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
+    it('should translate and respond an error', function () {
+      let app = express();
 
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next({ code: 'STRANGE_REQUEST' });
+      let code = 'INVALID_REQUEST';
+      let expectedError = errors[code];
+
+      app.get('/', (req, res, next) => next(code));
+      app.use(ErrorMiddlewareFactory.create(errors));
+
+      return request(app)
+        .get('/')
+        .expect(expectedError.status)
+        .expect('Content-Type', /json/)
+        .expect({
+          status: constants.STATUS_CODES[expectedError.status],
+          code,
+          message: expectedError.message,
+          detail: expectedError.detail
+        });
     });
-    app.use(errorMiddleware);
 
-    return request(app)
-      .get('/')
-      .expect(errors.STRANGE_REQUEST.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: 'STRANGE_REQUEST',
-        message: errors.STRANGE_REQUEST.message
+    it('should respond the default error if a translation error occurs', function () {
+      let app = express();
+
+      let code = 'BUGGED_ERROR';
+      let expectedError = constants.DEFAULT_ERROR;
+
+      app.get('/', (req, res, next) => next(code));
+      app.use(ErrorMiddlewareFactory.create(errors));
+
+      return request(app)
+        .get('/')
+        .expect(expectedError.status)
+        .expect('Content-Type', /json/)
+        .expect({
+          status: constants.STATUS_CODES[expectedError.status],
+          code: constants.DEFAULT_ERROR_CODE,
+          message: expectedError.message
+        });
+    });
+
+    it('should forward the error if a response has already been sent', function () {
+      let app = express();
+
+      let code = 'INVALID_REQUEST';
+
+      app.get('/', (req, res, next) => {
+        res.end();
+        return next(code);
       });
-  });
+      app.use(ErrorMiddlewareFactory.create(errors));
 
-  it('should handle known errors as string', function () {
-    let errors = {
-      STRANGE_REQUEST: {
-        status: 400,
-        message: 'The request is strange'
-      }
-    };
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next('STRANGE_REQUEST');
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(errors.STRANGE_REQUEST.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: 'STRANGE_REQUEST',
-        message: errors.STRANGE_REQUEST.message
+      let forwardedError;
+      app.use((err, req, res, next) => {
+        forwardedError = err;
       });
-  });
 
-  it('should handle unknown errors by sending the default error', function () {
-    let errors = {};
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next({ code: 'STRANGE_REQUEST' });
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(DEFAULT_ERROR.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: DEFAULT_ERROR_CODE,
-        message: DEFAULT_ERROR.message
-      });
-  });
-
-  it('should handle unidentified errors by sending the default error', function () {
-    let errors = {};
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next(new Error('BOOM!'));
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(DEFAULT_ERROR.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: DEFAULT_ERROR_CODE,
-        message: DEFAULT_ERROR.message
-      });
-  });
-
-  it('should handle invalid errors by sending the default error', function () {
-    let errors = {};
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next(404);
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(DEFAULT_ERROR.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: DEFAULT_ERROR_CODE,
-        message: DEFAULT_ERROR.message
-      });
-  });
-
-  it('should not handle the error if the response has already been sent', function () {
-    let errors = {};
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      res.end();
-      next({ code: 'STRANGE_REQUEST' });
-    });
-    app.use(errorMiddleware);
-
-    let uncaughtError;
-    app.use((err, req, res, next) => {
-      uncaughtError = err;
-      next();
+      return request(app)
+        .get('/')
+        .expect(200)
+        .then(() => {
+          should.exist(forwardedError);
+          forwardedError.should.eql(code);
+        });
     });
 
-    return request(app)
-      .get('/')
-      .expect(200)
-      .then(() => {
-        should.exist(uncaughtError);
-        uncaughtError.should.eql({ code: 'STRANGE_REQUEST' });
-      });
-  });
-
-  it('should send the default error if an error is thrown in the error interpreter', function () {
-    let errors = {
-      TROUBLESOME_ERROR: {
-        status: 'this shall make the interpreter explode'
-      }
-    };
-
-    let errorMiddleware = ErrorMiddlewareFactory.create(errors);
-
-    let app = express();
-    app.get('/', (req, res, next) => {
-      next({ code: 'TROUBLESOME_ERROR' });
-    });
-    app.use(errorMiddleware);
-
-    return request(app)
-      .get('/')
-      .expect(DEFAULT_ERROR.status)
-      .expect('Content-Type', /json/)
-      .expect({
-        code: DEFAULT_ERROR_CODE,
-        message: DEFAULT_ERROR.message
-      });
   });
 
 });
