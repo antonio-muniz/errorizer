@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.2.0
+## v0.2.0 (2017-07-24)
 - [*minor*] Better error response structure
 - [*patch*] Various code refactorings
 - [*patch*] Updated README
 
-## 0.1.0
+## v0.1.0 (2017-06-18)
 - [*minor*] First version
