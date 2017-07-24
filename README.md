@@ -8,6 +8,9 @@ By using this library, you can:
 - respond with error by simply calling the `next` function;
 - use meaningful, one-line errors in your code, without having HTTP response logic for errors everywhere.
 
+## Requirements
+- Node v4+
+
 ## Usage
 
 ```js
