@@ -6,8 +6,9 @@
   "scripts": {
     "coverage": "istanbul cover --include-all-sources true -x sample/** node_modules/mocha/bin/_mocha -- --timeout 5000 --recursive ./test",
     "lint": "eslint .",
-    "start-sample": "node ./sample/app",
-    "test": "npm run lint && npm run coverage"
+    "test": "npm run lint && npm run coverage",
+    "test-debug": "mocha --debug-brk=5858 --recursive ./test",
+    "test-inspect": "mocha --inspect-brk=5858 --recursive ./test"
   },
   "repository": {
     "type": "git",

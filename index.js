@@ -1,13 +1,9 @@
 'use strict';
 
-const util = require('util');
-
+const ErrorDefinitionsValidator = require('./lib/validation/error-definitions-validator');
 const ErrorMiddlewareFactory = require('./lib/error-middleware-factory');
 
 module.exports = (errors) => {
-  errors = errors || {};
-  if (!util.isObject(errors)) {
-    throw new Error('Error definition must be an object');
-  }
+  ErrorDefinitionsValidator.validate(errors);
   return ErrorMiddlewareFactory.create(Object.assign({}, errors));
 };
