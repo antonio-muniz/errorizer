@@ -4,9 +4,11 @@
   "description": "A Express middleware for organizing and returning custom errors in JSON APIs",
   "main": "index.js",
   "scripts": {
+    "coverage-upload": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "coverage": "istanbul cover --include-all-sources true -x sample/** node_modules/mocha/bin/_mocha -- --timeout 5000 --recursive ./test",
     "lint": "eslint .",
     "test": "npm run lint && npm run coverage",
+    "test-ci": "npm test && npm run coverage-upload",
     "test-debug": "mocha --debug-brk=5858 --recursive ./test",
     "test-inspect": "mocha --inspect-brk=5858 --recursive ./test"
   },
@@ -28,6 +30,7 @@
   },
   "homepage": "https://github.com/antonio-muniz/errorizer#readme",
   "devDependencies": {
+    "coveralls": "^2.13.1",
     "eslint": "^4.0.0",
     "express": "^4.15.3",
     "istanbul": "^0.4.5",

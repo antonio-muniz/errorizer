@@ -1,12 +1,25 @@
 # errorizer
 [![Build Status](https://travis-ci.org/antonio-muniz/errorizer.svg?branch=master)](https://travis-ci.org/antonio-muniz/errorizer)
+[![Coverage Status](https://coveralls.io/repos/github/antonio-muniz/errorizer/badge.svg?branch=master)](https://coveralls.io/github/antonio-muniz/errorizer?branch=master)
+[![npm version](https://badge.fury.io/js/errorizer.svg)](https://badge.fury.io/js/errorizer)
 
 An Express middleware for organizing and returning custom errors in JSON APIs.
 
-By using this library, you can:
-- declare your API errors in a single place, and use them wherever you need;
-- respond with error by simply calling the `next` function;
-- use meaningful, one-line errors in your code, without having HTTP response logic for errors everywhere.
+This package lets you:
+- return useful, standardized error responses to your clients;
+- declare API errors once, use them anywhere;
+- respond errors simply, using only meaningful error codes;
+
+## Table of contents
+* [Requirements](#requirements)
+* [Usage](#usage)
+* [Defining errors](#defining-errors)
+* [Responding errors](#responding-errors)
+* [Unexpected errors](#unexpected-errors)
+* [Contributing](#contributing)
+* [License](#license)
+
+----
 
 ## Requirements
 - Node v4+
@@ -34,16 +47,18 @@ app.use(errorizer({
     message: 'Boom!'
   }
 }));
+
+app.listen(3000);
 ```
 
 ```js
 
-// responding errors
-app.post('/something', (req, res, next) => {
+// use your predefined errors
+app.post('/users', (req, res, next) => {
   if (isStrange(req)) {
-    return next('STRANGE_REQUEST');
+    return next('STRANGE_REQUEST'); // just the error code
   }
-  // do something
+  // ...
 });
 
 // response
@@ -56,7 +71,7 @@ Content-Type: "application/json; charset=utf-8"
 }
 ```
 
-## Error definitions
+## Defining errors
 
 The API errors must be declared in an object and passed as a parameter to the main function, which creates the middleware.
 
@@ -95,7 +110,7 @@ let errors = {
   INVALID_DATE: function(err) {
     return {
       status: 400,
-      message: `'${err.properties.date}' is not a valid date`,
+      message: err.properties.date + ' is not a valid date',
       detail: {
         format: err.properties.format,
         docs: `http://docs.myapp.com/v1/errors/${err.code}`
@@ -106,7 +121,7 @@ let errors = {
 }
 ```
 
-## Error responses
+## Responding errors
 
 When an error condition is met somewhere in the code, the only thing that needs to be done is passing the error code to Express' `next` function.
 
@@ -154,7 +169,7 @@ Content-Type: "application/json; charset=utf-8"
 {
   "status": "Bad Request",
   "code": "INVALID_DATE",
-  "message": "'07/24/2017' is not a valid date",
+  "message": "07/24/2017 is not a valid date",
   "detail": {
     "format": "YYYY-MM-dd",
     "docs": "http://docs.myapp.com/v1/errors/INVALID_DATE"
@@ -162,9 +177,25 @@ Content-Type: "application/json; charset=utf-8"
 }
 ```
 
+## Unexpected errors
+
+If there's a bug in the code and an error is thrown out of nowhere, the error middleware will take care of it and generate the error below:
+
+```js
+HTTP 500
+Content-Type: "application/json; charset=utf-8"
+{
+  "status": "Internal Server Error",
+  "code": "UNEXPECTED_ERROR",
+  "message": "An unexpected error has occurred while fulfilling the request"
+}
+```
+
+This also applies for errors which were not defined in the error middleware creation, so make sure that all error codes used throughout the application are defined.
+
 ## Contributing
 
-Feel free to open issues or fork this repository.
+Feel free to open issues or fork this repository. All feedback is welcome.
 Before opening a pull request, make sure to have tests for your changes.
 
 ## License
