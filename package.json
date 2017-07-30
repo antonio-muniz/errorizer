@@ -24,6 +24,13 @@
     "api"
   ],
   "author": "antonio-muniz",
+  "contributors": [
+    {
+      "name": "Antonio H. N. Muniz",
+      "email": "ahnmhenrique@gmail.com",
+      "url": "https://github.com/antonio-muniz"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/antonio-muniz/errorizer/issues"

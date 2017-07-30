@@ -3,3 +3,5 @@ node_js:
   - "4.8"
   - "6.11"
   - "8.1"
+script:
+  - './scripts/travis-script.sh'
