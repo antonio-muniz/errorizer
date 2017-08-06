@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- [*major*] Renamed error `properties` to `custom`
+- [*patch*] Added all Node.js LTS versions from v4+ to Travis builds
+- [*patch*] Improved documentation and README badges
+
 ## v0.2.1 (2017-07-30)
 - [*patch*] Improved README and integrated to [Coveralls.io](https://coveralls.io)
 

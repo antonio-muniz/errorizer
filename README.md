@@ -73,7 +73,7 @@ Content-Type: "application/json; charset=utf-8"
 
 ## Defining errors
 
-The API errors must be declared in an object and passed as a parameter to the main function, which creates the middleware.
+The API errors must be declared in an object and passed as a parameter to the main function.
 
 ```js
 let errors = { /* ... */ };
@@ -283,7 +283,8 @@ Content-Type: "application/json; charset=utf-8"
 ## Contributing
 
 Feel free to contribute. All feedback is welcome!
-Before opening a pull request, make sure to have tests for your changes.
+
+Before opening a pull request, make sure to have your changes covered by tests.
 
 
 ## License
