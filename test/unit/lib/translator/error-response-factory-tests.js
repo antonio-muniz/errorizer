@@ -64,11 +64,11 @@ describe('ErrorResponseFactory', function () {
       let factory = new ErrorResponseFactory(errors);
 
       let code = 'INVALID_PARAMETER';
-      let properties = { parameter: 'name' };
+      let custom = { parameter: 'name' };
 
-      let generatedError = errors[code]({ code, properties });
+      let generatedError = errors[code]({ code, custom });
 
-      let errorResponse = factory.create({ code, properties });
+      let errorResponse = factory.create({ code, custom });
       should.exist(errorResponse);
       errorResponse.should.eql({
         code,
