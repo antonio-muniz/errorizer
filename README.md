@@ -16,6 +16,7 @@ Without appending functions to Express objects, this package lets you:
 * [Usage](#usage)
 * [Defining errors](#defining-errors)
 * [Responding errors](#responding-errors)
+* [Customizing errors with templates](#customizing-errors-with-templates)
 * [Unexpected errors](#unexpected-errors)
 * [Contributing](#contributing)
 * [License](#license)
@@ -80,13 +81,13 @@ let errorMiddleware = errorizer(errors);
 app.use(errorMiddleware);
 ```
 
-The `errors` object must contain error codes as keys. The error codes will identify the code in your app and should also be used by clients to identify errors.
+The `errors` object must contain error codes as keys. The error codes will identify the error in your app and should also be used by clients.
 
 As shown in the examples, each error may have these properties:
 
 * **`status`** (number, required): the HTTP status code for the error.
 * **`message`** (string, required): a brief description of the error.
-* **`detail`** (string/object/array, optional): a property for adding more details to the error (e.g.: a longer description, a link to the documentation, etc.)
+* **`detail`** (string/object/array, optional): a property for adding more details (e.g.: a longer description, a link to the documentation, etc.)
 
 **PROTIP**: Declare your errors in a separate file (e.g.: `errors.js`) to keep your application startup file clean.
 
@@ -122,9 +123,12 @@ module.exports = {
 
 ## Responding errors
 
-When an error condition is met somewhere in the code, all that needs to be done is to pass the error code to Express' `next` function.
+When an error condition is met somewhere in the code, all that needs to be done is to make the error code reach Express' `next` function.
 
-For convenience, you can specify the code as a string or as the message of an instance of `Error`. You can also include the error code in the `code` property of an object.
+For convenience, you can specify the error code in multiple ways:
+- as a string;
+- within an instance of `Error`;
+- in the `code` property of an object
 
 ### Example
 ```js
@@ -144,10 +148,10 @@ function(req,res,next) => {
   // plain string
   next('USER_NOT_FOUND');
 
-  // message of Error instance
+  // Error instance
   next(new Error('USER_NOT_FOUND'));
 
-  // using an object
+  // "code" property in object
   next({ code: 'USER_NOT_FOUND' });
 }
 
@@ -225,7 +229,7 @@ module.exports = {
   INVALID_DATE: function(err) {
     return {
       status: 400,
-      message: err.custom.date + 'is not a valid date',
+      message: err.custom.date + ' is not a valid date',
       detail: {
         format: err.custom.format,
         docs: "http://docs.myapp.com/v1/errors/INVALID_DATE"
@@ -275,8 +279,6 @@ Content-Type: "application/json; charset=utf-8"
   "message": "An unexpected error has occurred while fulfilling the request"
 }
 ```
-
-This also applies for errors which were not defined in the error middleware creation, so make sure that all error codes used throughout the application are defined.
 
 ## Contributing
 
