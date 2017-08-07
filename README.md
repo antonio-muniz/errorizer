@@ -1,20 +1,22 @@
 # errorizer
-[![Build Status](https://travis-ci.org/antonio-muniz/errorizer.svg?branch=master)](https://travis-ci.org/antonio-muniz/errorizer)
-[![Coverage Status](https://coveralls.io/repos/github/antonio-muniz/errorizer/badge.svg?branch=master)](https://coveralls.io/github/antonio-muniz/errorizer?branch=master)
-[![npm version](https://badge.fury.io/js/errorizer.svg)](https://badge.fury.io/js/errorizer)
+[![Travis](https://img.shields.io/travis/antonio-muniz/errorizer.svg)](https://travis-ci.org/antonio-muniz/errorizer)
+[![Coveralls](https://img.shields.io/coveralls/antonio-muniz/errorizer.svg)](https://coveralls.io/github/antonio-muniz/errorizer)
+[![npm](https://img.shields.io/npm/v/errorizer.svg)](https://www.npmjs.com/package/errorizer)
+[![license](https://img.shields.io/github/license/antonio-muniz/errorizer.svg)](https://github.com/antonio-muniz/errorizer/blob/master/LICENSE)
 
-An Express middleware for organizing and returning custom errors in JSON APIs.
+An [Express error middleware](http://expressjs.com/en/guide/error-handling.html) for organizing and returning custom errors in JSON APIs.
 
-This package lets you:
+Without appending functions to Express objects, this package lets you:
 - return useful, standardized error responses to your clients;
 - declare API errors once, use them anywhere;
-- respond errors simply, using only meaningful error codes;
+- respond errors with ease, using only meaningful error codes;
 
 ## Table of contents
 * [Requirements](#requirements)
 * [Usage](#usage)
 * [Defining errors](#defining-errors)
 * [Responding errors](#responding-errors)
+* [Customizing errors with templates](#customizing-errors-with-templates)
 * [Unexpected errors](#unexpected-errors)
 * [Contributing](#contributing)
 * [License](#license)
@@ -22,29 +24,35 @@ This package lets you:
 ----
 
 ## Requirements
-- Node v4+
+- Node.js v4+
+- [Express](https://github.com/expressjs/express) v4+
 
 ## Usage
 
 ```js
-/* CREATING AN APP */
-
 const express = require('express');
 const errorizer = require('errorizer');
 
 let app = express();
 
-// your routes and middlewares here
+app.post('/users', (req, res, next) => {
+  if (!isEmail(req.body.email)) {
+    return next('INVALID_EMAIL');
+  }
+  if (emailExists(req.body.email)) {
+    return next('EMAIL_ALREADY_EXISTS');
+  }
+  // ...
+});
 
-// create an errorizer middleware with your errors and add it to the app
 app.use(errorizer({
-  STRANGE_REQUEST: {
+  INVALID_EMAIL: {
     status: 400,
-    message: 'The request is really strange'
+    message: 'The email is not in a valid format'
   },
-  SERVER_EXPLODED: {
-    status: 500,
-    message: 'Boom!'
+  EMAIL_ALREADY_EXISTS: {
+    status: 400,
+    message: 'The specified email already belongs to another user'
   }
 }));
 
@@ -52,51 +60,79 @@ app.listen(3000);
 ```
 
 ```js
+// Response example
 
-// use your predefined errors
-app.post('/users', (req, res, next) => {
-  if (isStrange(req)) {
-    return next('STRANGE_REQUEST'); // just the error code
-  }
-  // ...
-});
-
-// response
 HTTP 400
 Content-Type: "application/json; charset=utf-8"
 {
   "status": "Bad Request",
-  "code": "STRANGE_REQUEST",
-  "message": "The request is really strange"
+  "code": "INVALID_EMAIL",
+  "message": "The email is not in a valid format"
 }
 ```
 
 ## Defining errors
 
-The API errors must be declared in an object and passed as a parameter to the main function, which creates the middleware.
+The API errors must be declared in an object and passed as a parameter to the main function.
 
 ```js
-let errors = {}; // your error definitions
+let errors = { /* ... */ };
 let errorMiddleware = errorizer(errors);
 app.use(errorMiddleware);
 ```
 
-The `errors` object must contain error codes as keys. The error codes will identify the code in your app and should also be used by clients to identify errors, so they shouldn't be changed unless breaking is intended.
+The `errors` object must contain error codes as keys. The error codes will identify the error in your app and should also be used by clients.
 
-The value of the `errors` object must be a function that returns an error object, or just the error object itself. The error object may have these properties:
+As shown in the examples, each error may have these properties:
 
 * **`status`** (number, required): the HTTP status code for the error.
 * **`message`** (string, required): a brief description of the error.
-* **`detail`** (string/object/array, optional): a property for adding more details to the error, like a longer description, a link to the documentation, etc.
+* **`detail`** (string/object/array, optional): a property for adding more details (e.g.: a longer description, a link to the documentation, etc.)
 
-If the error is declared as a function, you can customize the error on every occurrence of it.
+**PROTIP**: Declare your errors in a separate file (e.g.: `errors.js`) to keep your application startup file clean.
 
 ### Example
 
 ```js
-let errors = {
+// errors.js
 
-  // declared as a static object
+module.exports = {
+
+  INVALID_EMAIL: {
+    status: 400,
+    message: 'The email is not in a valid format'
+  },
+
+  EMAIL_ALREADY_EXISTS: {
+    status: 400,
+    message: 'The specified email already belongs to another user'
+  },
+
+  USER_NOT_FOUND: {
+    status: 404,
+    message: 'Could not find a user with the specified ID'
+  },
+
+  INVALID_LOGIN_OR_PASSWORD: {
+    status: 401,
+    message: 'The login and/or password are incorrect'
+  }
+
+};
+```
+
+## Responding errors
+
+When an error condition is met somewhere in the code, all that needs to be done is to make the error code reach Express' `next` function.
+
+For convenience, you can specify the error code in multiple ways:
+- as a string;
+- within an instance of `Error`;
+- in the `code` property of an object
+
+### Example
+```js
+errorizer({
   USER_NOT_FOUND: {
     status: 404,
     message: 'The specified user could not be found',
@@ -104,42 +140,22 @@ let errors = {
       description: 'This error occurs when the requested user does not exist',
       docs: 'http://docs.myapp.com/v1/errors/USER_NOT_FOUND'
     }
-  },
-
-  // declared as a function for customization
-  INVALID_DATE: function(err) {
-    return {
-      status: 400,
-      message: err.properties.date + ' is not a valid date',
-      detail: {
-        format: err.properties.format,
-        docs: `http://docs.myapp.com/v1/errors/${err.code}`
-      }
-    }
   }
+});
 
+// different ways to respond an error
+function(req,res,next) => {
+  // plain string
+  next('USER_NOT_FOUND');
+
+  // Error instance
+  next(new Error('USER_NOT_FOUND'));
+
+  // "code" property in object
+  next({ code: 'USER_NOT_FOUND' });
 }
-```
 
-## Responding errors
-
-When an error condition is met somewhere in the code, the only thing that needs to be done is passing the error code to Express' `next` function.
-
-For convenience, you can specify the code as a string or as the message of an instance of `Error`.
-
-You can also include the error code in the `code` property of an object. This is useful for customizing an error defined with a function because, in addition to the error code, you can also include `properties` that can be used by your error function.
-
-```js
-// plain string
-next('USER_NOT_FOUND');
-
-// message of Error instance
-next(new Error('USER_NOT_FOUND'));
-
-// using an object
-next({ code: 'USER_NOT_FOUND' });
-
-// response for either of the above
+// response sent for any of the above
 HTTP 404
 Content-Type: "application/json; charset=utf-8"
 {
@@ -153,17 +169,33 @@ Content-Type: "application/json; charset=utf-8"
 }
 ```
 
-```js
-// using an object with "properties"
-next({
-  code: 'INVALID_DATE',
-  properties: {
-    date: '07/24/2017',
-    format: 'YYYY-MM-dd'
-  }
-});
+## Customizing errors with templates
 
-// response
+Sometimes, you need an error response to contain values which may vary on every occurrence of it.
+
+For example, a form validation response with information about all fields with invalid values for UI highlighting.
+```js
+HTTP 400
+Content-Type: "application/json; charset=utf-8"
+{
+  "status": "Bad Request",
+  "code": "FORM_VALIDATION_ERROR",
+  "message": "Some form fields contain invalid values",
+  "detail": [
+    {
+      "field": "email",
+      "message": "The email is required"
+    },
+    {
+      "field": "password",
+      "message": "The password is required"
+    }
+  ]
+}
+```
+
+Or an error response containing data from the request.
+```js
 HTTP 400
 Content-Type: "application/json; charset=utf-8"
 {
@@ -175,6 +207,63 @@ Content-Type: "application/json; charset=utf-8"
     "docs": "http://docs.myapp.com/v1/errors/INVALID_DATE"
   }
 }
+```
+
+You achieve this by declaring error templates and using the `custom` property!
+
+Instead of declaring `FORM_VALIDATION_ERROR` and `INVALID_DATE` as static error objects, you can declare them as functions that return error objects (templates).
+
+```js
+// errors.js
+
+module.exports = {
+
+  FORM_VALIDATION_ERROR: function(err) {
+    return {
+      status: 400,
+      message: 'Some form fields contain invalid values',
+      detail: err.custom
+    }
+  },
+
+  INVALID_DATE: function(err) {
+    return {
+      status: 400,
+      message: err.custom.date + ' is not a valid date',
+      detail: {
+        format: err.custom.format,
+        docs: "http://docs.myapp.com/v1/errors/INVALID_DATE"
+      }
+    }
+  }
+
+};
+```
+
+Then, your route handlers can customize the errors by sending data in the `custom` property.
+```js
+function(req, res, next) => {
+  let formErrors = validateForm(req);
+  if (formErrors.length > 0) {
+    return next({
+      code: 'FORM_VALIDATION_ERROR',
+      custom: formErrors
+    });
+  }
+};
+
+function(req, res, next) => {
+  const dateFormat = 'YYYY-mm-dd';
+  if (!dateFormatIsCorrect(req.body.date, dateFormat)) {
+    return next({
+      code: 'INVALID_DATE',
+      custom: {
+        date: req.body.date,
+        format: dateFormat
+      }
+    });
+  }
+};
 ```
 
 ## Unexpected errors
@@ -191,12 +280,12 @@ Content-Type: "application/json; charset=utf-8"
 }
 ```
 
-This also applies for errors which were not defined in the error middleware creation, so make sure that all error codes used throughout the application are defined.
-
 ## Contributing
 
-Feel free to open issues or fork this repository. All feedback is welcome.
-Before opening a pull request, make sure to have tests for your changes.
+Feel free to contribute. All feedback is welcome!
+
+Before opening a pull request, make sure to have your changes covered by tests.
+
 
 ## License
 

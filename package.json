@@ -19,9 +19,13 @@
   "keywords": [
     "express",
     "error",
+    "handler",
     "middleware",
+    "function",
+    "custom",
     "json",
-    "api"
+    "api",
+    "http"
   ],
   "author": "antonio-muniz",
   "contributors": [

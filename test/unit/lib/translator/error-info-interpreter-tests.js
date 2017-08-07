@@ -43,7 +43,7 @@ describe('ErrorInfoInterpreter', function () {
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', code);
-      errorInfo.should.have.property('properties').which.is.Undefined();
+      errorInfo.should.have.property('custom').which.is.Undefined();
     });
 
     it('should interpret an error thrown as an error', function () {
@@ -56,7 +56,7 @@ describe('ErrorInfoInterpreter', function () {
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', code);
-      errorInfo.should.have.property('properties').which.is.Undefined();
+      errorInfo.should.have.property('custom').which.is.Undefined();
     });
 
     it('should interpret an error thrown as an object', function () {
@@ -69,21 +69,21 @@ describe('ErrorInfoInterpreter', function () {
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', code);
-      errorInfo.should.have.property('properties').which.is.Undefined();
+      errorInfo.should.have.property('custom').which.is.Undefined();
     });
 
-    it('should interpret an error thrown as an object with custom properties', function () {
+    it('should interpret an error thrown as an object with custom', function () {
       let interpreter = new ErrorInfoInterpreter(errors);
 
       let code = 'INVALID_REQUEST';
-      let properties = { custom: 'anything' };
+      let custom = { data: 'anything' };
 
-      let errorInfo = interpreter.interpret({ code, properties });
+      let errorInfo = interpreter.interpret({ code, custom });
 
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', code);
-      errorInfo.should.have.property('properties', properties);
+      errorInfo.should.have.property('custom', custom);
     });
 
     it('should return the default error code for invalid types', function () {
@@ -94,7 +94,7 @@ describe('ErrorInfoInterpreter', function () {
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', constants.DEFAULT_ERROR_CODE);
-      errorInfo.should.have.property('properties').which.is.Undefined();
+      errorInfo.should.have.property('custom').which.is.Undefined();
     });
 
     it('should return the default error code for unknown errors', function () {
@@ -105,7 +105,7 @@ describe('ErrorInfoInterpreter', function () {
       should.exist(errorInfo);
       Object.keys(errorInfo).should.have.length(2);
       errorInfo.should.have.property('code', constants.DEFAULT_ERROR_CODE);
-      errorInfo.should.have.property('properties').which.is.Undefined();
+      errorInfo.should.have.property('custom').which.is.Undefined();
     });
 
   });
