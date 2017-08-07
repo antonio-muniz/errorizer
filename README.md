@@ -2,6 +2,7 @@
 [![Travis](https://img.shields.io/travis/antonio-muniz/errorizer.svg)](https://travis-ci.org/antonio-muniz/errorizer)
 [![Coveralls](https://img.shields.io/coveralls/antonio-muniz/errorizer.svg)](https://coveralls.io/github/antonio-muniz/errorizer)
 [![npm](https://img.shields.io/npm/v/errorizer.svg)](https://www.npmjs.com/package/errorizer)
+[![David](https://img.shields.io/david/antonio-muniz/errorizer.svg)](https://david-dm.org/antonio-muniz/errorizer)
 [![license](https://img.shields.io/github/license/antonio-muniz/errorizer.svg)](https://github.com/antonio-muniz/errorizer/blob/master/LICENSE)
 
 An [Express error middleware](http://expressjs.com/en/guide/error-handling.html) for organizing and returning custom errors in JSON APIs.
