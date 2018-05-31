@@ -58,6 +58,20 @@ describe('ErrorInfoInterpreter', function () {
       errorInfo.should.have.property('code', code);
       errorInfo.should.have.property('custom').which.is.Undefined();
     });
+    
+    it('should interpret an error thrown (string of json) as an error', function () {
+      let interpreter = new ErrorInfoInterpreter(errors);
+
+      let code = 'INVALID_REQUEST';
+      let custom = { data: 'anything' };
+
+      let errorInfo = interpreter.interpret(new Error(JSON.stringify({ code, custom })));
+
+      should.exist(errorInfo);
+      Object.keys(errorInfo).should.have.length(2);
+      errorInfo.should.have.property('code', code);
+      errorInfo.should.have.property('custom').which.is.Undefined();
+    });
 
     it('should interpret an error thrown as an object', function () {
       let interpreter = new ErrorInfoInterpreter(errors);
